@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>JQuery radio</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>>
+    <script type="text/javascript" language="javascript">
+	
+		function onNetworkGet(params,call){
+		
+			var url = document.URL;
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function () {
+				switch ( xhr.readyState ) {
+					case 4:
+						if ( xhr.status == 200 ) {
+					
+							window.laststamp = (new Date()).getTime();
+							if(window.timestamp != xhr.responseText){
+								window.timestamp = xhr.responseText || ""
+								console.log( "xhr请求："+window.timestamp );
+								
+								window.updateImageGetId = window.updateImageId;
+								document.getElementById('splash').src = 'splash'+window.timestamp+'.jpg';
+							}
+							call && call( xhr.responseText );
+						} else {
+							//alert( "xhr请求失败："+xhr.readyState );
+						} 
+						break;
+					default :
+						break;
+				}
+			}
+			xhr.open( "GET", url + "?" + params.replace(/\s/g,"B"));
+			xhr.send();
+		}
+		
+		
+		function onClick(i,x,y){
+
+			window.updateImageId = (window.updateImageId || 0) + 1;
+			onNetworkGet("" + i + "H" + 2 + "H" + "input tap " + x + " " + y);
+		}
+		
+		function onText(i,s){
+			
+			window.updateImageId = (window.updateImageId || 0) + 1;
+			onNetworkGet("" + i + "H" + 2 + "H" + "input text " + s);
+		}
+		
+		function onKeyboard(i,k){
+			
+			window.updateImageId = (window.updateImageId || 0) + 1;
+			onNetworkGet("" + i + "H" + 2 + "H" + "input keyevent " + k);
+		}
+
+		
+		function onCheck(i){
+			
+			onNetworkGet("" + i + "H" + 3 + "H" + "check");
+		}	
+		
+		function onUpdate(i){
+			
+			onNetworkGet("" + i + "H" + 1 + "H" + "image");
+		}	
+		
+		function onSelectServer(selected){
+			
+	
+			var list = window.servers || [];
+			var select = selected || $('input:button[name="server"]').get(0);
+			$('input:button[name="server"]').each(function(index,element){
+				var server = list && list[index];
+				if(null != server){
+					if(this == select){
+						$(this).val("选中:"+server);
+					}
+					else{
+						$(this).val("客户:"+server);
+					}
+					$(this).show();
+				}
+				else{
+					$(this).hide();
+					$(this).val("")
+				}
+			});
+			
+		}	
+		
+
+		
+		function getSelectServer(){
+			
+			var select = 0;
+			$('input:button[name="server"]').each(function(index,element){
+				var val = $(this).val()
+				if(-1 != ("" + val).indexOf("选中:")){
+					select = index;
+				}
+			});
+			
+			return (window.servers || [])[select] || 0;
+		}	
+
+        $(function () {
+		
+		
+			onSelectServer(null);
+			
+			$('#text').hide();
+			$('#mouse-div').off("click").off("click").on('click', function(evt){
+				
+				if("点击" == $('input:button[id="div-click"]').val()){
+				
+					var e = evt || window.event;    
+					var x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+					var y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;   
+					onClick(getSelectServer(),x,y);
+				}
+            });
+			$('input:button[name="server"]').off("click").on('click', function(evt){
+				//alert("button >>  "+ getSelectServer())
+				onSelectServer(this)
+            });
+			
+			$('input:button[name="controll"]').off("click").on('click', function(evt){
+
+				switch($(this).val()){
+					case "文本":{ 
+						$(this).val("点击");
+						$('#text').hide();
+					}break;
+					case "点击":{ 
+						$(this).val("文本");
+						$('#text').show();
+					}break;
+					case "输入":{ 
+						onText(getSelectServer(),$('#text').val());
+					}break;
+					case "删除":{
+						onKeyboard(getSelectServer(),67);
+					}break;
+					case "返回":{
+						onKeyboard(getSelectServer(),4);
+					}
+					case "刷新":{
+						onUpdate(getSelectServer());
+					}
+					break;
+				}
+            });
+			
+			
+			var onUpdateImg = null;
+			onUpdateImg = function (){
+				onCheck(getSelectServer());
+				setTimeout(onUpdateImg,Math.max(800,(new Date()).getTime() - window.laststamp))
+			}
+			setTimeout(onUpdateImg,800);
+        });
+    </script>
+    <style>
+        .p { padding:50% 50%; }
+        .text{text-align: center}
+        .div-full{position:relative; color:#000; width:720px; height:1280px} 
+        .div-b{ position:absolute; left:0px; top:0px; background:#FFF; width:720px; height:1280px} 
+        .div-f{ position:absolute; left:0px; top:0px; width:720px; height:1280px;pointer-events:none;} 
+        .div-top{  display: flex; position:absolute; left:0px; top:0px; width:320px; height:80px} 
+        .div-left{ position:absolute; left:0px; top:100px; width:80px; height:320px} 
+        .div-bottom{ display: flex; position:absolute; left:0px; bottom:500px; width:720px; height:80px} 
+        .radio{outline: none; position:relative; width:80px; height:80px;border-radius: 50%;border: 5px solid;} 
+		.radio:active {outline: none; border: 0px solid;} 
+        .radio-text{ position:relative;width:140; height:40px; } 
+        .div-radio{text-align: center; position:relative;width:140px; height:140px;} 
+    </style>
+</head>
+
+<body class="div-full">
+    <div class="div-b" id= "mouse-div">
+        <img src="splash.jpg" id="splash" alt="Smiley face" width="720px" height="1280px">
+    </div>
+	<div class="div-top">
+	   <input class="radio" type="button" name="server" value="客户端A"/>
+	   <input class="radio" type="button" name="server" value="客户端B"/>
+	   <input class="radio" type="button" name="server" value="客户端C"/>
+	   <input class="radio" type="button" name="server" value="客户端D"/>
+	</div>
+	<div class="div-left">
+	   <input id="div-click" class="radio" type="button" name="controll" value="点击" /><br/>
+	   <input class="radio" type="button" name="controll" value="输入"/>
+	   <input class="radio" type="button" name="controll" value="删除"/>
+	   <input class="radio" type="button" name="controll" value="返回"/>
+	   <input class="radio" type="button" name="controll" value="刷新"/>
+	</div>
+	<div class="div-bottom">
+	   <input type="text" id="text" name="firstname" value="" />
+	</div>
+	
+	<script type="text/javascript" language="javascript">
+		window.servers=[];
+    </script>
+</body>
+
+</html>

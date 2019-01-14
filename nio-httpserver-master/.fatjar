@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Wed Jan 02 18:06:18 CST 2019
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=nio-httpserver-master_fat.jar
+manifest.mergeall=true
+manifest.mainclass=com.butterfly.nioserver.NioHttpServer
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=
